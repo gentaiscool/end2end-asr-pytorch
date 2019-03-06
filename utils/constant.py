@@ -63,11 +63,6 @@ parser.add_argument('--dim-input', default=161, type=int, help='Input dimension'
 parser.add_argument('--dim-inner', default=1024, type=int, help='Inner dimension')
 parser.add_argument('--dim-emb', default=512, type=int, help='Embedding dimension')
 
-# EWC
-parser.add_argument('--ewc', action='store_true', help='Train with EWC')
-parser.add_argument('--ewc_memory', default=10, type=int, help='Number of memories EWC')
-parser.add_argument('--ewc_reg', default=0.1, type=float, help='Reg EWC')
-
 parser.add_argument('--src-max-len', default=4000, type=int, help='Source max length')
 parser.add_argument('--tgt-max-len', default=1000, type=int, help='Target max length')
 
@@ -88,7 +83,6 @@ parser.add_argument('--lm-weight', default=0.1, type=float, help='LM weight')
 parser.add_argument('--c-weight', default=0.1, type=float, help='Word count weight')
 
 parser.add_argument('--prob-weight', default=1.0, type=float, help='Probability E2E weight')
-
 
 # loss
 parser.add_argument('--loss', type=str, default='ce', help='ce or ctc')

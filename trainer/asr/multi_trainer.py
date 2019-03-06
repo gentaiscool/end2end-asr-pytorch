@@ -10,13 +10,13 @@ import torch
 import sys
 
 
-class MultiTrainer():
+class Trainer():
     """
-    Multi Dataset Trainer class for Joint-Training
+    Dataset Trainer class for Joint-Training
     """
 
     def __init__(self):
-        print("Multi Trainer is initialized")
+        print("Trainer is initialized")
 
     def train(self, model, train_loader, train_sampler, valid_loaders, opt, loss_type, start_epoch, num_epochs, label2id, id2label, last_metrics=None):
         """

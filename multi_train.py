@@ -12,7 +12,7 @@ from trainer.asr.multi_trainer import MultiTrainer
 from utils import constant
 from utils.multi_data_loader import MultiSpectrogramDataset, MultiAudioDataLoader, MultiBucketingSampler
 from utils.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
-from utils.functions import save_model, load_model, init_transformer_model, init_deepspeech_model, init_las_model, init_optimizer
+from utils.functions import save_model, load_model, init_transformer_model, init_optimizer
 from utils.parallel import DataParallel
 
 from utils.logger import Logger
@@ -73,10 +73,6 @@ if __name__ == '__main__':
     else:
         if constant.args.model == "TRFS":
             model = init_transformer_model(constant.args, label2id, id2label)
-        elif constant.args.model == "DEEPSPEECH":
-            model = init_deepspeech_model(constant.args, label2id, id2label)
-        elif constant.args.model == "LAS":
-            model = init_las_model(constant.args, label2id, id2label)
         else:
             print("The model is not supported, check args --h")
         opt = init_optimizer(constant.args, model)
