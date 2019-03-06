@@ -85,6 +85,9 @@ if __name__ == '__main__':
     if constant.args.lm_rescoring:
         lm = LM(constant.args.lm_path)
 
+    if args.cuda:
+        model = model.cuda()
+
     print(model)
 
     evaluate(model, test_loader, lm=lm)

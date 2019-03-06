@@ -57,7 +57,7 @@ usage: train.py [-h] [--train-manifest] [--val-manifest] [--test-manifest] [--cu
 
 #### Example
 ```
-python train.py --train-manifest data/libri_train_manifest.csv --val-manifest libri_val_manifest.csv --test-manifest libri_test_clean_manifest.csv --labels-path data/labels/labels.json --emb_cnn --shuffle
+python train.py --train-manifest data/libri_train_manifest.csv --val-manifest libri_val_manifest.csv --test-manifest libri_test_clean_manifest.csv --labels-path data/labels/labels.json --emb_cnn --shuffle --batch-size 32
 ```
 
 Use ``python train.py --help`` for more parameters and options.
@@ -78,6 +78,19 @@ usage: multi_train.py [-h] [--train-manifest-list] [--val-manifest-list] [--test
 #### Example
 ```
 python multi_train.py --train-manifest-list data/libri_train_manifest.csv --val-manifest-list libri_val_manifest.csv --test-manifest libri_test_clean_manifest.csv --labels-path data/labels/labels.json --emb_cnn --shuffle --parallel --device-ids 0 1
+```
+### Test
+```
+usage: test.py [-h] [--test-manifest] [--cuda] [--verbose] [--continue_from]
+```
+#### Parameters
+```
+- cuda: test on GPU
+- continue_from: path to the trained model
+```
+#### Example
+```
+python test.py --test-manifest libri_test_clean_manifest.csv --cuda --continue_from save/model
 ```
 
 Use ``python multi_train.py --help`` for more parameters and options.

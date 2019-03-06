@@ -18,7 +18,7 @@ class Trainer():
     def __init__(self):
         print("Trainer is initialized")
 
-    def train(self, model, train_loader, train_sampler, valid_loaders, opt, loss_type, start_epoch, num_epochs, label2id, id2label, last_metrics=None):
+    def train(self, model, train_loader, train_sampler, valid_loaders, opt, loss_type, start_epoch, num_epochs, label2id, id2label, last_metrics=None, logger=None):
         """
         Training
         args:
@@ -30,6 +30,9 @@ class Trainer():
             num_epochs: last epoch
             last_metrics: (if resume)
         """
+        if logger is not None:
+            sys.out = logger
+
         start_time = time.time()
         best_valid_loss = 1000000000 if last_metrics is None else last_metrics['valid_loss']
         smoothing = constant.args.label_smoothing
@@ -37,7 +40,7 @@ class Trainer():
         history = []
 
         for epoch in range(start_epoch, num_epochs):
-            sys.stdout.flush()
+            sys.out.flush()
             total_loss, total_cer, total_wer, total_char, total_word = 0, 0, 0, 0, 0
             start_iter = 0
 
@@ -93,6 +96,7 @@ class Trainer():
             all_valid_loss = []
             for valid_task_id in range(len(valid_loaders)):
                 model.eval()
+                sys.out.flush()
 
                 valid_loader = valid_loaders[valid_task_id]
 

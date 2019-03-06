@@ -19,7 +19,8 @@ import sys
 
 if __name__ == '__main__':
     args = constant.args
-    sys.stdout = Logger("log/" + args.name)
+    logger = Logger("log/" + args.name)
+    sys.stdout = logger
 
     audio_conf = dict(sample_rate=args.sample_rate,
                       window_size=args.window_size,
@@ -32,7 +33,7 @@ if __name__ == '__main__':
     print("audio_conf", audio_conf)
 
     with open(args.labels_path) as label_file:
-        labels = str(''.join(json.load(label_file)))
+        labels = str(''.join(json.load(label_file))).lower()
 
     # add PAD_CHAR, SOS_CHAR, EOS_CHAR
     labels = constant.PAD_CHAR + constant.SOS_CHAR + constant.EOS_CHAR + labels
@@ -89,4 +90,4 @@ if __name__ == '__main__':
     num_epochs = constant.args.epochs
 
     trainer = Trainer()
-    trainer.train(model, train_loader, train_sampler, valid_loader, opt, loss_type, start_epoch, num_epochs, label2id, id2label, metrics)
+    trainer.train(model, train_loader, train_sampler, valid_loader, opt, loss_type, start_epoch, num_epochs, label2id, id2label, metrics, logger)

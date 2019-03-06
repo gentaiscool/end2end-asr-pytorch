@@ -17,7 +17,7 @@ class Trainer():
     def __init__(self):
         print("Trainer is initialized")
 
-    def train(self, model, train_loader, train_sampler, valid_loader, opt, loss_type, start_epoch, num_epochs, label2id, id2label, last_metrics=None):
+    def train(self, model, train_loader, train_sampler, valid_loader, opt, loss_type, start_epoch, num_epochs, label2id, id2label, last_metrics=None, logger=None):
         """
         Training
         args:
@@ -29,6 +29,8 @@ class Trainer():
             num_epochs: last epoch
             last_metrics: (if resume)
         """
+        sys.out = logger
+
         history = []
         start_time = time.time()
         best_valid_loss = 1000000000 if last_metrics is None else last_metrics['valid_loss']
@@ -37,7 +39,7 @@ class Trainer():
         print("name", constant.args.name)
 
         for epoch in range(start_epoch, num_epochs):
-            sys.stdout.flush()
+            sys.out.flush()
             total_loss, total_cer, total_wer, total_char, total_word = 0, 0, 0, 0, 0
 
             start_iter = 0
@@ -106,12 +108,12 @@ class Trainer():
             # evaluate
             print("VALID")
             model.eval()
+            sys.out.flush()
 
             total_valid_loss, total_valid_cer, total_valid_wer, total_valid_char, total_valid_word = 0, 0, 0, 0, 0
             valid_pbar = tqdm(iter(valid_loader), leave=True,
                             total=len(valid_loader))
             for i, (data) in enumerate(valid_pbar):
-                print(i)
                 src, tgt, src_percentages, src_lengths, tgt_lengths = data
 
                 if constant.USE_CUDA:
