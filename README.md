@@ -20,7 +20,7 @@ python3 data/librispeech.py --target-dir LibriSpeech_dataset/ --sample-rate 1600
 ```
 
 ### Custom Dataset
-#### Manifest
+#### Manifest file
 To use your own dataset, you must create a CSV manifest file using the following format:
 
 ```
@@ -29,6 +29,20 @@ To use your own dataset, you must create a CSV manifest file using the following
 ...
 ```
 Each line contains the path to the audio file and transcript file separated by a comma.
+
+#### Label file
+You need to specify all characters in the corpus by using the following JSON format:
+
+```
+[ 
+  "_",
+  "'",
+  "A",
+  ...,
+  "Z",
+  " "
+]
+```
 
 ### Training
 ```
