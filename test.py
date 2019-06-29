@@ -26,6 +26,7 @@ def evaluate(model, test_loader, lm=None):
     model.eval()
 
     total_word, total_char, total_cer, total_wer = 0, 0, 0, 0
+    total_en_cer, total_zh_cer, total_en_char, total_zh_char = 0, 0, 0, 0
 
     with torch.no_grad():
         test_pbar = tqdm(iter(test_loader), leave=True, total=len(test_loader))
@@ -46,13 +47,19 @@ def evaluate(model, test_loader, lm=None):
                 wer = calculate_wer(hyp, gold)
                 cer = calculate_cer(hyp.strip(), gold.strip())
 
+                en_cer, zh_cer, num_en_char, num_zh_char = calculate_cer_en_zh(hyp, gold)
+                total_en_cer += en_cer
+                total_zh_cer += zh_cer
+                total_en_char += num_en_char
+                total_zh_char += num_zh_char
+
                 total_wer += wer
                 total_cer += cer
                 total_word += len(gold.split(" "))
                 total_char += len(gold)
 
-            test_pbar.set_description("TEST CER:{:.2f}% WER:{:.2f}%".format(
-                total_cer*100/total_char, total_wer*100/total_word))
+            test_pbar.set_description("TEST CER:{:.2f}% WER:{:.2f}% CER_EN:{:.2f}% CER_ZH:{:.2f}%".format(
+                total_cer*100/total_char, total_wer*100/total_word, total_en_cer*100/max(1, total_en_char), total_zh_cer*100/max(1, total_zh_char)))
 
 
 if __name__ == '__main__':
@@ -63,7 +70,7 @@ if __name__ == '__main__':
     # Load the model
     load_path = constant.args.continue_from
     model, opt, epoch, metrics, loaded_args, label2id, id2label = load_model(constant.args.continue_from)
-
+    
     if loaded_args.parallel:
         print("unwrap data parallel")
         model = model.module
@@ -76,7 +83,7 @@ if __name__ == '__main__':
                       noise_prob=loaded_args.noise_prob,
                       noise_levels=(loaded_args.noise_min, loaded_args.noise_max))
 
-    test_data = SpectrogramDataset(audio_conf=audio_conf, manifest_filepath=constant.args.test_manifest, label2id=label2id,
+    test_data = SpectrogramDataset(audio_conf=audio_conf, manifest_filepath=constant.args.test_manifest_list, label2id=label2id,
                                    normalize=True, augment=False)
     test_sampler = BucketingSampler(test_data, batch_size=constant.args.batch_size)
     test_loader = AudioDataLoader(test_data, num_workers=args.num_workers, batch_sampler=test_sampler)
@@ -84,9 +91,6 @@ if __name__ == '__main__':
     lm = None
     if constant.args.lm_rescoring:
         lm = LM(constant.args.lm_path)
-
-    if args.cuda:
-        model = model.cuda()
 
     print(model)
 

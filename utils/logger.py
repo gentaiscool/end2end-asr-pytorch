@@ -1,4 +1,5 @@
 import os, sys
+import logging
 
 class Logger(object):
     def __init__(self, log_name):

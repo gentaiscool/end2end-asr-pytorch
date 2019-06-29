@@ -1,29 +1,81 @@
-# End-to-end speech recognition on Pytorch
+## End-to-End Speech Recognition on Pytorch
+
+<img src="img/pytorch-logo-dark.png" width="10%"> [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
 ### Highlights
-- implemented Transformer model (from <a href="https://arxiv.org/abs/1804.10752">Syllable-Based Sequence-to-Sequence Speech Recognition with the Transformer in Mandarin Chinese<a/> with some modifications on the encoder input (additional CNN layer)
-- supports training on multiple corpora (with any languages)
+- implemented Transformer model based on <a href="https://arxiv.org/abs/1804.10752">Syllable-Based Sequence-to-Sequence Speech Recognition with the Transformer in Mandarin Chinese<a/>
+- the code uses Spectrogram features and VGG (6-layer 2D CNN) feature extractor
+- supports training on any languages, has been tested in AiShell-1 dataset
 - supports batch parallelization on multi GPUs
+- supports multiple dataset training and evaluation
 
 ### Requirements
-- Python 3.5
+- Python 3.5 or later
 - Install Pytorch 1.0 (https://pytorch.org/)
 - Install torchaudio (https://github.com/pytorch/audio)
-- run ``bash requirement.txt``
+- run ``❱❱❱ bash requirement.sh``
 
-## Data
-### Librispeech
-This is the script provided by <a href="https://github.com/SeanNaren/deepspeech.pytorch">Sean Naren</a>. You can specify which librispeech files you want.
+### Data
+#### AiShell-1
+To automatically download the data
+```console
+❱❱❱ python data/aishell.py
+```
 
+### Training
+```console
+usage: train.py [-h] [--train-manifest-list] [--valid-manifest-list] [--test-manifest-list] [--cuda] [--verbose] [--batch-size] [--labels-path] [--lr] [--name] [--save-folder] [--save-every] [--feat_extractor] [--emb_trg_sharing] [--shuffle] [--sample_rate] [--label-smoothing] [--window-size] [--window-stride] [--window] [--epochs]  [--src-max-len] [--tgt-max-len] [--warmup] [--momentum] [--lr-anneal] [--num-layers] [--num-heads] [--dim-model] [--dim-key] [--dim-value] [--dim-input] [--dim-inner] [--dim-emb] [--shuffle]
 ```
-python3 data/librispeech.py --target-dir LibriSpeech_dataset/ --sample-rate 16000 --files-to-use train-clean-100.tar.gz,train-clean-360.tar.gz,train-other-500.tar.gz,dev-clean.tar.gz,dev-other.tar.gz,test-clean.tar.gz,test-other.tar.gz --min-duration 1 --max-duration 15
+### Parameters
 ```
+- feat_extractor: ``emb_cnn`` or ``vgg_cnn`` 
+    - emb_cnn: add 4-layer 2D convolutional layer as the feature extractor
+    - vgg_cnn: add 6-layer 2D convolutional layers as the feature extractor
+- cuda: train on GPU
+- shuffle: randomly shuffle every batch
+```
+
+#### Example
+```console
+❱❱❱ python train.py --train-manifest-list data/manifests/aishell_train_manifest.csv --valid-manifest-list data/manifests/aishell_dev_manifest.csv --test-manifest-list data/manifests/aishell_test_manifest.csv --cuda --batch-size 12 --labels-path data/labels/aishell_labels.json --lr 1e-4 --name aishell_drop0.1_cnn_batch12_4_vgg_layer4 --save-folder save/ --save-every 5 --feat_extractor vgg_cnn --dropout 0.1 --num-layers 4 --num-heads 8 --dim-model 512 --dim-key 64 --dim-value 64 --dim-input 161 --dim-inner 2048 --dim-emb 512 --shuffle --min-lr 1e-6 --k-lr 1
+```
+Use ``python train.py --help`` for more parameters and options.
+
+### Multi-GPU Training
+```
+usage: train.py [--parallel] [--device-ids]
+```
+
+#### Parameters
+```
+- parallel: split batches to GPUs (the number of batch has to be divisible by the number of GPUs)
+- device-ids: GPU ids
+```
+
+#### Example
+```console
+❱❱❱ CUDA_VISIBLE_DEVICES=0,1 python train.py --train-manifest-list data/manifests/aishell_train_manifest.csv --valid-manifest-list data/manifests/aishell_dev_manifest.csv --test-manifest-list data/manifests/aishell_test_manifest.csv --cuda --batch-size 12 --labels-path data/labels/aishell_labels.json --lr 1e-4 --name aishell_drop0.1_cnn_batch12_4_vgg_layer4 --save-folder save/ --save-every 5 --vgg_cnn --dropout 0.1 --num-layers 4 --num-heads 8 --dim-model 512 --dim-key 64 --dim-value 64 --dim-input 161 --dim-inner 2048 --dim-emb 512 --shuffle --min-lr 1e-6 --k-lr 1 --parallel --device-ids 0 1
+```
+### Test
+```
+usage: test.py [-h] [--test-manifest] [--cuda] [--verbose] [--continue_from]
+```
+#### Parameters
+```
+- cuda: test on GPU
+- continue_from: path to the trained model
+```
+#### Example
+```
+python test.py --test-manifest-list libri_test_clean_manifest.csv --cuda --continue_from save/model
+```
+
+Use ``python multi_train.py --help`` for more parameters and options.
 
 ### Custom Dataset
 #### Manifest file
 To use your own dataset, you must create a CSV manifest file using the following format:
-
-```
+```console
 /path/to/audio.wav,/path/to/text.txt
 /path/to/audio2.wav,/path/to/text2.txt
 ...
@@ -44,59 +96,5 @@ You need to specify all characters in the corpus by using the following JSON for
 ]
 ```
 
-### Training
-```
-usage: train.py [-h] [--train-manifest] [--val-manifest] [--test-manifest] [--cuda] [--verbose] [--batch-size] [--labels-path] [--lr] [--name] [--save-folder] [--save-every] [--emb_cnn] [--emb_trg_sharing] [--shuffle] [--sample_rate] [--label-smoothing] [--window-size] [--window-stride] [--window] [--epochs]  [--src-max-len] [--tgt-max-len] [--warmup] [--momentum] [--lr-anneal] [--num-layers] [--num-heads] [--dim-model] [--dim-key] [--dim-value] [--dim-input] [--dim-inner] [--dim-emb] [--shuffle]
-```
-#### Parameters
-```
-- emb_cnn: add 2D convolutional layer in the input
-- cuda: train on GPU
-- shuffle: randomly shuffle every batch
-```
-
-#### Example
-```
-python train.py --train-manifest data/libri_train_manifest.csv --val-manifest libri_val_manifest.csv --test-manifest libri_test_clean_manifest.csv --labels-path data/labels/labels.json --emb_cnn --shuffle --batch-size 32
-```
-
-Use ``python train.py --help`` for more parameters and options.
-
-### Multi-GPU Training
-```
-usage: multi_train.py [-h] [--train-manifest-list] [--val-manifest-list] [--test-manifest] [--cuda] [--verbose] [--batch-size] [--labels-path] [--lr] [--name] [--save-folder] [--save-every] [--emb_cnn] [--emb_trg_sharing] [--shuffle] [--sample_rate] [--label-smoothing] [--window-size] [--window-stride] [--window] [--epochs]  [--src-max-len] [--tgt-max-len] [--warmup] [--momentum] [--lr-anneal] [--num-layers] [--num-heads] [--dim-model] [--dim-key] [--dim-value] [--dim-input] [--dim-inner] [--dim-emb] [--shuffle] [--parallel] [--device-ids]
-```
-#### Parameters
-```
-- emb_cnn: add 2D convolutional layer in the input
-- cuda: train on GPU
-- shuffle: randomly shuffle every batch
-- parallel: split batches to GPUs
-- device-ids: GPU ids
-```
-
-#### Example
-```
-python multi_train.py --train-manifest-list data/libri_train_manifest.csv --val-manifest-list libri_val_manifest.csv --test-manifest libri_test_clean_manifest.csv --labels-path data/labels/labels.json --emb_cnn --shuffle --parallel --device-ids 0 1
-```
-### Test
-```
-usage: test.py [-h] [--test-manifest] [--cuda] [--verbose] [--continue_from]
-```
-#### Parameters
-```
-- cuda: test on GPU
-- continue_from: path to the trained model
-```
-#### Example
-```
-python test.py --test-manifest libri_test_clean_manifest.csv --cuda --continue_from save/model
-```
-
-Use ``python multi_train.py --help`` for more parameters and options.
-
-## Todo
-- [x] parallelization
-- [ ] better documentation
-- [ ] add more models (LAS, CTC)
-- [ ] experiment results
+## Bug Report
+Feel free to create an issue or send email to giwinata@connect.ust.hk

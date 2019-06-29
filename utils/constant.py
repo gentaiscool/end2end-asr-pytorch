@@ -6,17 +6,17 @@ parser = argparse.ArgumentParser(description='Transformer ASR training')
 parser.add_argument('--model', default='TRFS', type=str, help="TRFS:transformer, LAS:listen-attend-spell")
 # train
 parser.add_argument('--name', default='model', help="Name of the model for saving")
-parser.add_argument('--train-manifest', metavar='DIR',
-                    help='path to train manifest csv', default='data/train_manifest.csv')
-parser.add_argument('--val-manifest', metavar='DIR',
-                    help='path to validation manifest csv', default='data/val_manifest.csv')
-parser.add_argument('--test-manifest', metavar='DIR',
-                    help='path to validation manifest csv', default='data/test_manifest.csv')
+# parser.add_argument('--train-manifest', metavar='DIR',
+#                     help='path to train manifest csv', default='data/train_manifest.csv')
+# parser.add_argument('--val-manifest', metavar='DIR',
+#                     help='path to validation manifest csv', default='data/val_manifest.csv')
+# parser.add_argument('--test-manifest', metavar='DIR',
+#                     help='path to validation manifest csv', default='data/test_manifest.csv')
 
-# multi-train
 parser.add_argument('--train-manifest-list', nargs='+', type=str)
-parser.add_argument('--val-manifest-list', nargs='+', type=str)
+parser.add_argument('--valid-manifest-list', nargs='+', type=str)
 parser.add_argument('--test-manifest-list', nargs='+', type=str)
+parser.add_argument('--lang-list', nargs='+', type=str)
 
 parser.add_argument('--sample-rate', default=16000, type=int, help='Sample rate')
 parser.add_argument('--batch-size', default=20, type=int, help='Batch size for training')
@@ -31,6 +31,7 @@ parser.add_argument('--window', default='hamming', help='Window type for spectro
 
 parser.add_argument('--epochs', default=1000, type=int, help='Number of training epochs')
 parser.add_argument('--cuda', dest='cuda', action='store_true', help='Use cuda to train model')
+
 parser.add_argument('--device-ids', default=None, nargs='+', type=int,
                     help='If using cuda, sets the GPU devices for the process')
 parser.add_argument('--lr', '--learning-rate', default=3e-4, type=float, help='initial learning rate')
@@ -39,7 +40,9 @@ parser.add_argument('--save-every', default=5, type=int, help='Save model every 
 parser.add_argument('--save-folder', default='models/', help='Location to save epoch models')
 
 parser.add_argument('--emb_trg_sharing', action='store_true', help='Share embedding weight source and target')
-parser.add_argument('--emb_cnn', action='store_true', help='Add Convolutional Nets')
+# parser.add_argument('--emb_cnn', action='store_true', help='Add Convolutional Nets')
+# parser.add_argument('--vgg_cnn', action='store_true', help='Add VGG 6 layer Convolutional Nets')
+parser.add_argument('--feat_extractor', default='vgg_cnn', type=str, help='emb_cnn or vgg_cnn')
 
 parser.add_argument('--verbose', action='store_true', help='Verbose')
 
@@ -68,6 +71,8 @@ parser.add_argument('--tgt-max-len', default=1000, type=int, help='Target max le
 
 # Noam optimizer
 parser.add_argument('--warmup', default=4000, type=int, help='Warmup')
+parser.add_argument('--min-lr', default=1e-5, type=float, help='min lr')
+parser.add_argument('--k-lr', default=1, type=float, help='factor lr')
 
 # SGD optimizer
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
@@ -81,7 +86,6 @@ parser.add_argument('--lm-rescoring', action='store_true', help='Rescore using L
 parser.add_argument('--lm-path', type=str, default="lm_model.pt", help="Path to LM model")
 parser.add_argument('--lm-weight', default=0.1, type=float, help='LM weight')
 parser.add_argument('--c-weight', default=0.1, type=float, help='Word count weight')
-
 parser.add_argument('--prob-weight', default=1.0, type=float, help='Probability E2E weight')
 
 # loss

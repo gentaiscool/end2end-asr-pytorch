@@ -10,17 +10,22 @@ from torch.autograd import Variable
 from trainer.asr.trainer import Trainer
 
 from utils import constant
-from utils.data_loaders.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
-from utils.functions import save_model, load_model, init_transformer_model, init_optimizer
-from utils.parallel import DataParallel
-from utils.logger import Logger
+from utils.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
+from utils.functions import save_model, load_model, init_transformer_model, init_deepspeech_model, init_las_model, init_optimizer
+import logging
 
 import sys
 
 if __name__ == '__main__':
     args = constant.args
-    logger = Logger("log/" + args.name)
-    sys.stdout = logger
+    print("="*50)
+    print("THE EXPERIMENT LOG IS SAVED IN: " + "log/" + args.name)
+    print("TRAINING MANIFEST: ", args.train_manifest_list)
+    print("VALID MANIFEST: ", args.valid_manifest_list)
+    print("TEST MANIFEST: ", args.test_manifest_list)
+    print("="*50)
+
+    logging.basicConfig(filename="log/" + args.name, filemode='w+', format='%(asctime)s - %(message)s', level=logging.INFO)
 
     audio_conf = dict(sample_rate=args.sample_rate,
                       window_size=args.window_size,
@@ -30,36 +35,40 @@ if __name__ == '__main__':
                       noise_prob=args.noise_prob,
                       noise_levels=(args.noise_min, args.noise_max))
 
-    print("audio_conf", audio_conf)
+    logging.info(audio_conf)
 
     with open(args.labels_path) as label_file:
-        labels = str(''.join(json.load(label_file))).lower()
+        labels = str(''.join(json.load(label_file)))
 
     # add PAD_CHAR, SOS_CHAR, EOS_CHAR
     labels = constant.PAD_CHAR + constant.SOS_CHAR + constant.EOS_CHAR + labels
     label2id = dict([(labels[i], i) for i in range(len(labels))])
     id2label = dict([(i, labels[i]) for i in range(len(labels))])
 
-    train_data = SpectrogramDataset(audio_conf=audio_conf, manifest_filepath=args.train_manifest, label2id=label2id,
-                                    normalize=True, augment=args.augment)
+    train_data = SpectrogramDataset(audio_conf, manifest_filepath_list=args.train_manifest_list, label2id=label2id, normalize=True, augment=args.augment)
     train_sampler = BucketingSampler(train_data, batch_size=args.batch_size)
     train_loader = AudioDataLoader(
         train_data, num_workers=args.num_workers, batch_sampler=train_sampler)
 
-    valid_data = SpectrogramDataset(audio_conf=audio_conf, manifest_filepath=args.val_manifest, label2id=label2id,
-                                    normalize=True, augment=False)
-    valid_sampler = BucketingSampler(valid_data, batch_size=args.batch_size)
-    valid_loader = AudioDataLoader(valid_data, num_workers=args.num_workers)
+    valid_loader_list, test_loader_list = [], []
+    for i in range(len(args.valid_manifest_list)):
+        valid_data = SpectrogramDataset(audio_conf, manifest_filepath_list=[args.valid_manifest_list[i]], label2id=label2id,
+                                        normalize=True, augment=False)
+        valid_sampler = BucketingSampler(valid_data, batch_size=args.batch_size)
+        valid_loader = AudioDataLoader(valid_data, num_workers=args.num_workers)
+        valid_loader_list.append(valid_loader)
 
-    test_data = SpectrogramDataset(audio_conf=audio_conf, manifest_filepath=args.test_manifest, label2id=label2id,
-                                   normalize=True, augment=False)
-    test_loader = AudioDataLoader(test_data, num_workers=args.num_workers)
+    for i in range(len(args.test_manifest_list)):
+        test_data = SpectrogramDataset(audio_conf, manifest_filepath_list=[args.test_manifest_list[i]], label2id=label2id,
+                                    normalize=True, augment=False)
+        test_loader = AudioDataLoader(test_data, num_workers=args.num_workers)
+        test_loader_list.append(test_loader)
 
     start_epoch = 0
     metrics = None
     loaded_args = None
     if constant.args.continue_from != "":
-        print("Continue from checkpoint:", constant.args.continue_from)
+        logging.info("Continue from checkpoint:", constant.args.continue_from)
         model, opt, epoch, metrics, loaded_args, label2id, id2label = load_model(
             constant.args.continue_from)
         start_epoch = (epoch-1)  # index starts from zero
@@ -68,8 +77,14 @@ if __name__ == '__main__':
         if constant.args.model == "TRFS":
             model = init_transformer_model(constant.args, label2id, id2label)
             opt = init_optimizer(constant.args, model, "noam")
+        elif constant.args.model == "DEEPSPEECH":
+            model = init_deepspeech_model(constant.args, label2id, id2label)
+            opt = init_optimizer(constant.args, model, "sgd")
+        elif constant.args.model == "LAS":
+            model = init_las_model(constant.args, label2id, id2label)
+            opt = init_optimizer(constant.args, model, "noam")
         else:
-            print("The model is not supported, check args --h")
+            logging.info("The model is not supported, check args --h")
     
     loss_type = args.loss
 
@@ -79,15 +94,15 @@ if __name__ == '__main__':
     # Parallelize the batch
     if args.parallel:
         device_ids = args.device_ids
-        model = DataParallel(model, device_ids=device_ids)
+        model = nn.DataParallel(model)
     else:
         if loaded_args != None:
             if loaded_args.parallel:
-                print("unwrap from DataParallel")
+                logging.info("unwrap from DataParallel")
                 model = model.module
 
-    print(model)
+    logging.info(model)
     num_epochs = constant.args.epochs
 
     trainer = Trainer()
-    trainer.train(model, train_loader, train_sampler, valid_loader, opt, loss_type, start_epoch, num_epochs, label2id, id2label, metrics, logger)
+    trainer.train(model, train_loader, train_sampler, valid_loader_list, opt, loss_type, start_epoch, num_epochs, label2id, id2label, metrics)
