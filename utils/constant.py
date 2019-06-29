@@ -1,18 +1,12 @@
 import argparse
 import torch
 
-parser = argparse.ArgumentParser(description='Transformer ASR training')
+parser = argparse.ArgumentParser(description='ASR training')
 
-parser.add_argument('--model', default='TRFS', type=str, help="TRFS:transformer, LAS:listen-attend-spell")
-# train
+parser.add_argument('--model', default='TRFS', type=str, help="TRFS:transformer")
 parser.add_argument('--name', default='model', help="Name of the model for saving")
-# parser.add_argument('--train-manifest', metavar='DIR',
-#                     help='path to train manifest csv', default='data/train_manifest.csv')
-# parser.add_argument('--val-manifest', metavar='DIR',
-#                     help='path to validation manifest csv', default='data/val_manifest.csv')
-# parser.add_argument('--test-manifest', metavar='DIR',
-#                     help='path to validation manifest csv', default='data/test_manifest.csv')
 
+# train
 parser.add_argument('--train-manifest-list', nargs='+', type=str)
 parser.add_argument('--valid-manifest-list', nargs='+', type=str)
 parser.add_argument('--test-manifest-list', nargs='+', type=str)
@@ -40,8 +34,6 @@ parser.add_argument('--save-every', default=5, type=int, help='Save model every 
 parser.add_argument('--save-folder', default='models/', help='Location to save epoch models')
 
 parser.add_argument('--emb_trg_sharing', action='store_true', help='Share embedding weight source and target')
-# parser.add_argument('--emb_cnn', action='store_true', help='Add Convolutional Nets')
-# parser.add_argument('--vgg_cnn', action='store_true', help='Add VGG 6 layer Convolutional Nets')
 parser.add_argument('--feat_extractor', default='vgg_cnn', type=str, help='emb_cnn or vgg_cnn')
 
 parser.add_argument('--verbose', action='store_true', help='Verbose')

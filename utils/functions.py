@@ -117,34 +117,6 @@ def init_optimizer(args, model, opt_type="noam"):
 
     return opt
 
-
-def init_las_model(args, label2id, id2label):
-    """
-    Initialize a new Listen-Attend-Spell object
-    """
-    dim_input = args.dim_input
-    dim_model = args.dim_model
-    dim_emb = args.dim_emb
-    num_layers = args.num_layers
-    dropout = args.dropout
-
-    if hasattr(args, 'bidirectional'):
-        bidirectional = args.bidirectional
-    else:
-        bidirectional = False
-    
-    tgt_max_len = args.tgt_max_len
-    emb_trg_sharing = args.emb_trg_sharing
-
-    encoder = LASEncoder(dim_input, dim_model=dim_model,
-                         num_layers=num_layers, dropout=dropout, bidirectional=bidirectional)
-    decoder = LASDecoder(id2label, num_src_vocab=len(label2id), num_trg_vocab=len(label2id), num_layers=num_layers,
-                         dim_emb=dim_emb, dim_model=dim_model, dropout=dropout, trg_max_length=tgt_max_len, emb_trg_sharing=emb_trg_sharing)
-    model = LAS(encoder, decoder)
-
-    return model
-
-
 def init_transformer_model(args, label2id, id2label):
     """
     Initiate a new transformer object
@@ -157,9 +129,9 @@ def init_transformer_model(args, label2id, id2label):
         hidden_size *= 32
         args.dim_input = hidden_size
     elif args.feat_extractor == 'vgg_cnn':
-            hidden_size = int(math.floor((args.sample_rate * args.window_size) / 2) + 1) # 161
-            hidden_size = int(math.floor(int(math.floor(hidden_size)/2)/2)) * 128 # divide by 2 for maxpooling
-            args.dim_input = hidden_size
+        hidden_size = int(math.floor((args.sample_rate * args.window_size) / 2) + 1) # 161
+        hidden_size = int(math.floor(int(math.floor(hidden_size)/2)/2)) * 128 # divide by 2 for maxpooling
+        args.dim_input = hidden_size
     else:
         print("the model is initialized without feature extractor")
 
@@ -177,6 +149,7 @@ def init_transformer_model(args, label2id, id2label):
     tgt_max_len = args.tgt_max_len
     dropout = args.dropout
     emb_trg_sharing = args.emb_trg_sharing
+    feat_extractor = args.feat_extractor
 
     encoder = Encoder(num_layers, num_heads=num_heads, dim_model=dim_model, dim_key=dim_key,
                       dim_value=dim_value, dim_input=dim_input, dim_inner=dim_inner, src_max_length=src_max_len, dropout=dropout)
@@ -186,59 +159,6 @@ def init_transformer_model(args, label2id, id2label):
 
     if args.parallel:
         device_ids = args.device_ids
-        if constant.args.device_ids:
-            print("load with device_ids", constant.args.device_ids)
-            model = DataParallel(model, device_ids=constant.args.device_ids)
-        else:
-            model = DataParallel(model)
-
-    return model
-
-def init_deepspeech_model(args, label2id, id2label):
-    """
-    Initiate a new DeepSpeech object
-    """
-    hidden_size = int(math.floor(
-        (args.sample_rate * args.window_size) / 2) + 1)
-    hidden_size = int(math.floor(hidden_size - 41) / 2 + 1)
-    hidden_size = int(math.floor(hidden_size - 21) / 2 + 1)
-    hidden_size *= 32
-    args.dim_input = hidden_size
-    dim_input = hidden_size
-    
-    num_layers = args.num_layers
-    dim_model = args.dim_model
-    dim_input = args.dim_input
-
-    model = DeepSpeech(dim_input, dim_model=dim_model, num_layers=num_layers, bidirectional=True, context=20, label2id=label2id, id2label=id2label)
-
-    if args.parallel:
-        device_ids = args.device_ids
-        if constant.args.device_ids:
-            print("load with device_ids", constant.args.device_ids)
-            model = DataParallel(model, device_ids=constant.args.device_ids)
-        else:
-            model = DataParallel(model)
-
-    return model
-
-def init_lm_transformer_model(args, label2id, id2label):
-    """
-    Initiate a new transformer object
-    """
-    num_layers = args.num_layers
-    num_heads = args.num_heads
-    dim_model = args.dim_model
-    dim_key = args.dim_key
-    dim_value = args.dim_value
-    dim_inner = args.dim_inner
-    dim_emb = args.dim_emb
-    tgt_max_len = args.tgt_max_len
-    dropout = args.dropout
-
-    model = TransformerLM(id2label, num_src_vocab=len(label2id), num_trg_vocab=len(label2id), num_layers=num_layers, dim_emb=dim_emb, dim_model=dim_model, dim_inner=dim_inner, num_heads=num_heads, dim_key=dim_key, dim_value=dim_value, trg_max_length=tgt_max_len, dropout=dropout)
-
-    if args.parallel:
         if constant.args.device_ids:
             print("load with device_ids", constant.args.device_ids)
             model = DataParallel(model, device_ids=constant.args.device_ids)

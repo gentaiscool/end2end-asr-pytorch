@@ -16,17 +16,22 @@
 - run ``❱❱❱ bash requirement.sh``
 
 ### Data
-#### AiShell-1
+#### AiShell-1 (Chinese)
 To automatically download the data
 ```console
 ❱❱❱ python data/aishell.py
+```
+#### Librispeech (English)
+To automatically download the data
+```console
+❱❱❱ python data/librispeech.py
 ```
 
 ### Training
 ```console
 usage: train.py [-h] [--train-manifest-list] [--valid-manifest-list] [--test-manifest-list] [--cuda] [--verbose] [--batch-size] [--labels-path] [--lr] [--name] [--save-folder] [--save-every] [--feat_extractor] [--emb_trg_sharing] [--shuffle] [--sample_rate] [--label-smoothing] [--window-size] [--window-stride] [--window] [--epochs]  [--src-max-len] [--tgt-max-len] [--warmup] [--momentum] [--lr-anneal] [--num-layers] [--num-heads] [--dim-model] [--dim-key] [--dim-value] [--dim-input] [--dim-inner] [--dim-emb] [--shuffle]
 ```
-### Parameters
+#### Parameters
 ```
 - feat_extractor: ``emb_cnn`` or ``vgg_cnn`` 
     - emb_cnn: add 4-layer 2D convolutional layer as the feature extractor
@@ -40,6 +45,11 @@ usage: train.py [-h] [--train-manifest-list] [--valid-manifest-list] [--test-man
 ❱❱❱ python train.py --train-manifest-list data/manifests/aishell_train_manifest.csv --valid-manifest-list data/manifests/aishell_dev_manifest.csv --test-manifest-list data/manifests/aishell_test_manifest.csv --cuda --batch-size 12 --labels-path data/labels/aishell_labels.json --lr 1e-4 --name aishell_drop0.1_cnn_batch12_4_vgg_layer4 --save-folder save/ --save-every 5 --feat_extractor vgg_cnn --dropout 0.1 --num-layers 4 --num-heads 8 --dim-model 512 --dim-key 64 --dim-value 64 --dim-input 161 --dim-inner 2048 --dim-emb 512 --shuffle --min-lr 1e-6 --k-lr 1
 ```
 Use ``python train.py --help`` for more parameters and options.
+
+#### Results
+| Dataset  | Test CER |
+| ------------- | ------------- |
+| AiShell-1 | |
 
 ### Multi-GPU Training
 ```
@@ -66,8 +76,8 @@ usage: test.py [-h] [--test-manifest] [--cuda] [--verbose] [--continue_from]
 - continue_from: path to the trained model
 ```
 #### Example
-```
-python test.py --test-manifest-list libri_test_clean_manifest.csv --cuda --continue_from save/model
+```console
+❱❱❱ python test.py --test-manifest-list libri_test_clean_manifest.csv --cuda --continue_from save/model
 ```
 
 Use ``python multi_train.py --help`` for more parameters and options.
@@ -75,7 +85,7 @@ Use ``python multi_train.py --help`` for more parameters and options.
 ### Custom Dataset
 #### Manifest file
 To use your own dataset, you must create a CSV manifest file using the following format:
-```console
+```
 /path/to/audio.wav,/path/to/text.txt
 /path/to/audio2.wav,/path/to/text2.txt
 ...
@@ -84,7 +94,6 @@ Each line contains the path to the audio file and transcript file separated by a
 
 #### Label file
 You need to specify all characters in the corpus by using the following JSON format:
-
 ```
 [ 
   "_",
