@@ -3,13 +3,14 @@ import torch
 class NoamOpt:
     "Optim wrapper that implements rate."
 
-    def __init__(self, model_size, factor, warmup, optimizer):
+    def __init__(self, model_size, factor, warmup, optimizer, min_lr=1e-5):
         self.optimizer = optimizer
         self._step = 0
         self.warmup = warmup
         self.factor = factor
         self.model_size = model_size
         self._rate = 0
+        self.min_lr = min_lr
 
     def step(self):
         "Update parameters and rate"
@@ -20,13 +21,15 @@ class NoamOpt:
         self._rate = rate
         self.optimizer.step()
 
+    def zero_grad(self):
+        self.optimizer.zero_grad()
+
     def rate(self, step=None):
         "Implement `lrate` above"
-        if step is None:
-            step = self._step
-        return self.factor * \
+        step = self._step
+        return max(self.min_lr, self.factor * \
             (self.model_size ** (-0.5) * min(step **
-                                             (-0.5), step * self.warmup ** (-1.5)))
+                                             (-0.5), step * self.warmup ** (-1.5))))
 
 class AnnealingOpt:
     "Optim wrapper for annealing opt"

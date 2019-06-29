@@ -12,6 +12,7 @@ from models.common_layers import MultiHeadAttention, PositionalEncoding, Positio
 
 from utils.metrics import calculate_metrics
 
+import kenlm
 import os
 
 from utils.lstm_utils import calculate_lm_score
@@ -24,15 +25,15 @@ class Transformer(nn.Module):
         decoder: Decoder object
     """
 
-    def __init__(self, encoder, decoder, emb_cnn=False):
+    def __init__(self, encoder, decoder, feat_extractor='vgg_cnn'):
         super(Transformer, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
         self.id2label = decoder.id2label
-        self.emb_cnn = emb_cnn
+        self.feat_extractor = feat_extractor
 
         # feature embedding
-        if emb_cnn:
+        if feat_extractor == 'emb_cnn':
             self.conv = nn.Sequential(
                 nn.Conv2d(1, 32, kernel_size=(41, 11), stride=(2, 2), padding=(0, 10)),
                 nn.BatchNorm2d(32),
@@ -40,6 +41,19 @@ class Transformer(nn.Module):
                 nn.Conv2d(32, 32, kernel_size=(21, 11), stride=(2, 1), ),
                 nn.BatchNorm2d(32),
                 nn.Hardtanh(0, 20, inplace=True)
+            )
+        elif feat_extractor == 'vgg_cnn':
+            self.conv = nn.Sequential(
+                nn.Conv2d(1, 64, 3, stride=1, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(64, 64, 3, stride=1, padding=1),
+                nn.ReLU(),
+                nn.MaxPool2d(2, stride=2),
+                nn.Conv2d(64, 128, 3, stride=1, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(128, 128, 3, stride=1, padding=1),
+                nn.ReLU(),
+                nn.MaxPool2d(2, stride=2)
             )
 
         for p in self.parameters():
@@ -49,7 +63,7 @@ class Transformer(nn.Module):
     def forward(self, padded_input, input_lengths, padded_target, verbose=False):
         """
         args:
-            (TODO) padded_input: B x H_1 (channel?) x (freq?) x T
+            padded_input: B x 1 (channel for spectrogram=1) x (freq) x T
             padded_input: B x T x D
             input_lengths: B
             padded_target: B x T
@@ -57,8 +71,7 @@ class Transformer(nn.Module):
             pred: B x T x vocab
             gold: B x T
         """
-
-        if constant.args.emb_cnn:
+        if self.feat_extractor == 'emb_cnn' or self.feat_extractor == 'vgg_cnn':
             padded_input = self.conv(padded_input)
 
         # Reshaping features
@@ -85,7 +98,7 @@ class Transformer(nn.Module):
             batch_strs_nbest_hyps: list of nbest str
             batch_strs_gold: list of gold str
         """
-        if self.emb_cnn:
+        if self.feat_extractor == 'emb_cnn' or self.feat_extractor == 'vgg_cnn':
             padded_input = self.conv(padded_input)
 
         # Reshaping features
@@ -221,7 +234,7 @@ class Decoder(nn.Module):
 
         self.trg_max_length = trg_max_length
 
-        self.trg_embedding = nn.Embedding(num_trg_vocab, dim_emb)
+        self.trg_embedding = nn.Embedding(num_trg_vocab, dim_emb, padding_idx=constant.PAD_TOKEN)
         self.positional_encoding = PositionalEncoding(
             dim_model, max_length=trg_max_length)
         self.dropout = nn.Dropout(dropout)

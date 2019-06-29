@@ -5,6 +5,7 @@ import numpy as np
 import os
 import scipy.signal
 import torch
+import random
 
 from torch.distributed import get_rank
 from torch.distributed import get_world_size
@@ -14,7 +15,7 @@ from torch.utils.data.sampler import Sampler
 
 from utils import constant
 from utils.audio import load_audio, get_audio_length, audio_with_sox, augment_audio_with_sox, load_randomly_augmented_audio
-
+import logging
 
 windows = {'hamming': scipy.signal.hamming, 'hann': scipy.signal.hann, 'blackman': scipy.signal.blackman,
            'bartlett': scipy.signal.bartlett}
@@ -63,6 +64,7 @@ class SpectrogramParser(AudioParser):
             y = load_audio(audio_path)
 
         if self.noiseInjector:
+            logging.info("inject noise")
             add_noise = np.random.binomial(1, self.noise_prob)
             if add_noise:
                 y = self.noiseInjector.inject_noise(y)
@@ -93,7 +95,7 @@ class SpectrogramParser(AudioParser):
 
 
 class SpectrogramDataset(Dataset, SpectrogramParser):
-    def __init__(self, audio_conf, manifest_filepath, label2id, normalize=False, augment=False):
+    def __init__(self, audio_conf, manifest_filepath_list, label2id, normalize=False, augment=False):
         """
         Dataset that loads tensors via a csv containing file paths to audio files and transcripts separated by
         a comma. Each new line is a different sample. Example below:
@@ -105,34 +107,41 @@ class SpectrogramDataset(Dataset, SpectrogramParser):
         :param normalize: Apply standard mean and deviation normalization to audio tensor
         :param augment(default False):  Apply random tempo and gain perturbations
         """
-        with open(manifest_filepath) as f:
-            ids = f.readlines()
+        self.max_size = 0
+        self.ids_list = []
+        for i in range(len(manifest_filepath_list)):
+            manifest_filepath = manifest_filepath_list[i]
+            with open(manifest_filepath) as f:
+                ids = f.readlines()
 
-        ids = [x.strip().split(',') for x in ids]
-        self.ids = ids
-        self.size = len(ids)
+            ids = [x.strip().split(',') for x in ids]
+            self.ids_list.append(ids)
+            self.max_size = max(len(ids), self.max_size)
+
+        self.manifest_filepath_list = manifest_filepath_list
         self.label2id = label2id
         super(SpectrogramDataset, self).__init__(
             audio_conf, normalize, augment)
 
     def __getitem__(self, index):
-        sample = self.ids[index]
+        random_id = random.randint(0, len(self.ids_list)-1)
+        ids = self.ids_list[random_id]
+        sample = ids[index % len(ids)]
         audio_path, transcript_path = sample[0], sample[1]
-        # spect = self.parse_audio(audio_path)
         spect = self.parse_audio(audio_path)[:,:constant.args.src_max_len]
         transcript = self.parse_transcript(transcript_path)
         return spect, transcript
 
     def parse_transcript(self, transcript_path):
         with open(transcript_path, 'r', encoding='utf8') as transcript_file:
-            transcript = transcript_file.read().replace('\n', '').lower()
+            transcript = constant.SOS_CHAR + transcript_file.read().replace('\n', '').lower() + constant.EOS_CHAR
 
         transcript = list(
             filter(None, [self.label2id.get(x) for x in list(transcript)]))
         return transcript
 
     def __len__(self):
-        return self.size
+        return self.max_size
 
 
 class NoiseInjection(object):
