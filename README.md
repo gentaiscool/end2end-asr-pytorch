@@ -47,7 +47,7 @@ usage: train.py [-h] [--train-manifest-list] [--valid-manifest-list] [--test-man
 Use ``python train.py --help`` for more parameters and options.
 
 #### Results
-AiShell-1 Loss Curve
+##### AiShell-1 Loss Curve
 <img src="img/aishell_loss.jpg"/>
 
 ### Multi-GPU Training
