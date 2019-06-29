@@ -12,6 +12,7 @@ from trainer.asr.trainer import Trainer
 from utils import constant
 from utils.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
 from utils.functions import save_model, load_model, init_transformer_model, init_deepspeech_model, init_las_model, init_optimizer
+from utils.parallel import DataParallel
 import logging
 
 import sys
@@ -88,7 +89,7 @@ if __name__ == '__main__':
     # Parallelize the batch
     if args.parallel:
         device_ids = args.device_ids
-        model = nn.DataParallel(model)
+        model = DataParallel(model, device_ids=device_ids)
     else:
         if loaded_args != None:
             if loaded_args.parallel:

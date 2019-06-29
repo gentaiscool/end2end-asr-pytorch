@@ -5,8 +5,8 @@
 ### Highlights
 - implemented Transformer model based on <a href="https://arxiv.org/abs/1804.10752">Syllable-Based Sequence-to-Sequence Speech Recognition with the Transformer in Mandarin Chinese<a/>
 - the code uses Spectrogram features and VGG (6-layer 2D CNN) feature extractor
-- supports training on any languages, has been tested in AiShell-1 dataset
-- supports batch parallelization on multi GPUs
+- supports training on any languages
+- supports batch parallelization on multi-GPU
 - supports multiple dataset training and evaluation
 
 ### Requirements
@@ -33,9 +33,9 @@ usage: train.py [-h] [--train-manifest-list] [--valid-manifest-list] [--test-man
 ```
 #### Parameters
 ```
-- feat_extractor: ``emb_cnn`` or ``vgg_cnn`` 
-    - emb_cnn: add 4-layer 2D convolutional layer as the feature extractor
-    - vgg_cnn: add 6-layer 2D convolutional layers as the feature extractor
+- feat_extractor: "emb_cnn" or "vgg_cnn" as the feature extractor, or set "" for none
+    - emb_cnn: add 4-layer 2D CNN
+    - vgg_cnn: add 6-layer 2D CNN
 - cuda: train on GPU
 - shuffle: randomly shuffle every batch
 ```
@@ -47,9 +47,8 @@ usage: train.py [-h] [--train-manifest-list] [--valid-manifest-list] [--test-man
 Use ``python train.py --help`` for more parameters and options.
 
 #### Results
-| Dataset  | Test CER |
-| ------------- | ------------- |
-| AiShell-1 | |
+AiShell-1 Loss Curve
+<img src="img/aishell_loss.jpg"/>
 
 ### Multi-GPU Training
 ```
@@ -64,7 +63,7 @@ usage: train.py [--parallel] [--device-ids]
 
 #### Example
 ```console
-❱❱❱ CUDA_VISIBLE_DEVICES=0,1 python train.py --train-manifest-list data/manifests/aishell_train_manifest.csv --valid-manifest-list data/manifests/aishell_dev_manifest.csv --test-manifest-list data/manifests/aishell_test_manifest.csv --cuda --batch-size 12 --labels-path data/labels/aishell_labels.json --lr 1e-4 --name aishell_drop0.1_cnn_batch12_4_vgg_layer4 --save-folder save/ --save-every 5 --vgg_cnn --dropout 0.1 --num-layers 4 --num-heads 8 --dim-model 512 --dim-key 64 --dim-value 64 --dim-input 161 --dim-inner 2048 --dim-emb 512 --shuffle --min-lr 1e-6 --k-lr 1 --parallel --device-ids 0 1
+❱❱❱ CUDA_VISIBLE_DEVICES=0,1 python train.py --train-manifest-list data/manifests/aishell_train_manifest.csv --valid-manifest-list data/manifests/aishell_dev_manifest.csv --test-manifest-list data/manifests/aishell_test_manifest.csv --cuda --batch-size 12 --labels-path data/labels/aishell_labels.json --lr 1e-4 --name aishell_drop0.1_cnn_batch12_4_vgg_layer4 --save-folder save/ --save-every 5 --feat_extractor vgg_cnn --dropout 0.1 --num-layers 4 --num-heads 8 --dim-model 512 --dim-key 64 --dim-value 64 --dim-input 161 --dim-inner 2048 --dim-emb 512 --shuffle --min-lr 1e-6 --k-lr 1 --parallel --device-ids 0 1
 ```
 ### Test
 ```
@@ -106,4 +105,4 @@ You need to specify all characters in the corpus by using the following JSON for
 ```
 
 ## Bug Report
-Feel free to create an issue or send email to giwinata@connect.ust.hk
+Feel free to create an issue

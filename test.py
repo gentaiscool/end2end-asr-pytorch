@@ -9,7 +9,7 @@ from torch.autograd import Variable
 from tqdm import tqdm
 from models.asr.transformer import Transformer, Encoder, Decoder
 from utils import constant
-from utils.data_loaders.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
+from utils.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
 from utils.optimizer import NoamOpt
 from utils.metrics import calculate_metrics, calculate_cer, calculate_wer, calculate_cer_en_zh
 from utils.functions import save_model, load_model
@@ -83,7 +83,7 @@ if __name__ == '__main__':
                       noise_prob=loaded_args.noise_prob,
                       noise_levels=(loaded_args.noise_min, loaded_args.noise_max))
 
-    test_data = SpectrogramDataset(audio_conf=audio_conf, manifest_filepath=constant.args.test_manifest_list, label2id=label2id,
+    test_data = SpectrogramDataset(audio_conf=audio_conf, manifest_filepath_list=constant.args.test_manifest_list, label2id=label2id,
                                    normalize=True, augment=False)
     test_sampler = BucketingSampler(test_data, batch_size=constant.args.batch_size)
     test_loader = AudioDataLoader(test_data, num_workers=args.num_workers, batch_sampler=test_sampler)
