@@ -4,7 +4,6 @@ import math
 import torch.nn as nn
 
 from models.asr.transformer import Transformer, Encoder, Decoder
-from models.lm.transformer_lm import TransformerLM
 from utils.optimizer import NoamOpt, AnnealingOpt
 from utils import constant
 from utils.parallel import DataParallel
@@ -133,8 +132,6 @@ def init_transformer_model(args, label2id, id2label):
     else:
         print("the model is initialized without feature extractor")
 
-    emb_cnn = args.emb_cnn
-    vgg_cnn = args.vgg_cnn
     num_layers = args.num_layers
     num_heads = args.num_heads
     dim_model = args.dim_model

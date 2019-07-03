@@ -11,11 +11,12 @@ from trainer.asr.trainer import Trainer
 
 from utils import constant
 from utils.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
-from utils.functions import save_model, load_model, init_transformer_model, init_deepspeech_model, init_las_model, init_optimizer
+from utils.functions import save_model, load_model, init_transformer_model, init_optimizer
 from utils.parallel import DataParallel
 import logging
 
 import sys
+import os
 
 if __name__ == '__main__':
     args = constant.args
@@ -25,6 +26,9 @@ if __name__ == '__main__':
     print("VALID MANIFEST: ", args.valid_manifest_list)
     print("TEST MANIFEST: ", args.test_manifest_list)
     print("="*50)
+
+    if not os.path.exists("./log"):
+        os.mkdir("./log")
 
     logging.basicConfig(filename="log/" + args.name, filemode='w+', format='%(asctime)s - %(message)s', level=logging.INFO)
 

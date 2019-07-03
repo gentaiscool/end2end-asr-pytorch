@@ -105,6 +105,7 @@ class Trainer():
                     (epoch+1), total_loss/(i+1), total_cer*100/total_char, opt._rate))
                 # pbar.set_description("(Epoch {}) TRAIN LOSS:{:.4f} CER:{:.2f}% WER:{:.2f}%  LR:{:.7f}".format(
                     # (epoch+1), total_loss/(i+1), total_cer*100/total_char, total_wer*100/total_word, opt._rate))
+                break
             logging.info("(Epoch {}) TRAIN LOSS:{:.4f} CER:{:.2f}% LR:{:.7f}".format(
                 (epoch+1), total_loss/(len(train_loader)), total_cer*100/total_char, opt._rate))
 
