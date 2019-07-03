@@ -3,8 +3,6 @@ import os
 import math
 import torch.nn as nn
 
-from models.asr.las import LAS, LASEncoder, LASDecoder
-from models.asr.deepspeech import DeepSpeech
 from models.asr.transformer import Transformer, Encoder, Decoder
 from models.lm.transformer_lm import TransformerLM
 from utils.optimizer import NoamOpt, AnnealingOpt
