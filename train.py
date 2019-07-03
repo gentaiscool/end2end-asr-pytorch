@@ -11,11 +11,12 @@ from trainer.asr.trainer import Trainer
 
 from utils import constant
 from utils.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
-from utils.functions import save_model, load_model, init_transformer_model, init_deepspeech_model, init_las_model, init_optimizer
+from utils.functions import save_model, load_model, init_transformer_model, init_optimizer
 from utils.parallel import DataParallel
 import logging
 
 import sys
+import os
 
 if __name__ == '__main__':
     args = constant.args
@@ -25,6 +26,9 @@ if __name__ == '__main__':
     print("VALID MANIFEST: ", args.valid_manifest_list)
     print("TEST MANIFEST: ", args.test_manifest_list)
     print("="*50)
+
+    if not os.path.exists("./log"):
+        os.mkdir("./log")
 
     logging.basicConfig(filename="log/" + args.name, filemode='w+', format='%(asctime)s - %(message)s', level=logging.INFO)
 
@@ -43,8 +47,18 @@ if __name__ == '__main__':
 
     # add PAD_CHAR, SOS_CHAR, EOS_CHAR
     labels = constant.PAD_CHAR + constant.SOS_CHAR + constant.EOS_CHAR + labels
-    label2id = dict([(labels[i], i) for i in range(len(labels))])
-    id2label = dict([(i, labels[i]) for i in range(len(labels))])
+    label2id, id2label = {}, {}
+    count = 0
+    for i in range(len(labels)):
+        if labels[i] not in label2id:
+            label2id[labels[i]] = count
+            id2label[count] = labels[i]
+            count += 1
+        else:
+            print("multiple label: ", labels[i])
+
+    # label2id = dict([(labels[i], i) for i in range(len(labels))])
+    # id2label = dict([(i, labels[i]) for i in range(len(labels))])
 
     train_data = SpectrogramDataset(audio_conf, manifest_filepath_list=args.train_manifest_list, label2id=label2id, normalize=True, augment=args.augment)
     train_sampler = BucketingSampler(train_data, batch_size=args.batch_size)
