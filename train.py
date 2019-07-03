@@ -43,8 +43,18 @@ if __name__ == '__main__':
 
     # add PAD_CHAR, SOS_CHAR, EOS_CHAR
     labels = constant.PAD_CHAR + constant.SOS_CHAR + constant.EOS_CHAR + labels
-    label2id = dict([(labels[i], i) for i in range(len(labels))])
-    id2label = dict([(i, labels[i]) for i in range(len(labels))])
+    label2id, id2label = {}, {}
+    count = 0
+    for i in range(len(labels)):
+        if labels[i] not in label2id:
+            label2id[labels[i]] = count
+            id2label[count] = labels[i]
+            count += 1
+        else:
+            print("multiple label: ", labels[i])
+
+    # label2id = dict([(labels[i], i) for i in range(len(labels))])
+    # id2label = dict([(i, labels[i]) for i in range(len(labels))])
 
     train_data = SpectrogramDataset(audio_conf, manifest_filepath_list=args.train_manifest_list, label2id=label2id, normalize=True, augment=args.augment)
     train_sampler = BucketingSampler(train_data, batch_size=args.batch_size)
