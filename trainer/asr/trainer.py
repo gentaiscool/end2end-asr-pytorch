@@ -103,9 +103,6 @@ class Trainer():
 
                 pbar.set_description("(Epoch {}) TRAIN LOSS:{:.4f} CER:{:.2f}% LR:{:.7f}".format(
                     (epoch+1), total_loss/(i+1), total_cer*100/total_char, opt._rate))
-                # pbar.set_description("(Epoch {}) TRAIN LOSS:{:.4f} CER:{:.2f}% WER:{:.2f}%  LR:{:.7f}".format(
-                    # (epoch+1), total_loss/(i+1), total_cer*100/total_char, total_wer*100/total_word, opt._rate))
-                break
             logging.info("(Epoch {}) TRAIN LOSS:{:.4f} CER:{:.2f}% LR:{:.7f}".format(
                 (epoch+1), total_loss/(len(train_loader)), total_cer*100/total_char, opt._rate))
 
@@ -163,8 +160,6 @@ class Trainer():
                     total_valid_loss += loss.item()
                     valid_pbar.set_description("VALID SET {} LOSS:{:.4f} CER:{:.2f}%".format(ind,
                         total_valid_loss/(i+1), total_valid_cer*100/total_valid_char))
-                    # valid_pbar.set_description("(Epoch {}) VALID LOSS:{:.4f} CER:{:.2f}% WER:{:.2f}%".format(
-                        # (epoch+1), total_valid_loss/(i+1), total_valid_cer*100/total_valid_char, total_valid_wer*100/total_valid_word))
                 logging.info("VALID SET {} LOSS:{:.4f} CER:{:.2f}%".format(ind,
                         total_valid_loss/(len(valid_loader)), total_valid_cer*100/total_valid_char))
 
