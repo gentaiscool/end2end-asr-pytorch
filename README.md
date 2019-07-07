@@ -17,7 +17,7 @@
 
 ### Data
 #### AiShell-1 (Chinese)
-To automatically download the data
+To preprocess the data. You need to download the data from https://www.openslr.org/33/. I will add a script to automate the process.
 ```console
 ❱❱❱ python data/aishell.py
 ```
