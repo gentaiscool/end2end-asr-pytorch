@@ -15,12 +15,21 @@
 - Install torchaudio (https://github.com/pytorch/audio)
 - run ``❱❱❱ bash requirement.sh``
 
+### Results
+AiShell-1
+
+| Decoding strategy | CER |
+| ------------- | ------------- |
+| Greedy | 14.5% |
+| Beam-search (beam width=8) | 13.5% |
+
 ### Data
 #### AiShell-1 (Chinese)
 To preprocess the data. You need to download the data from https://www.openslr.org/33/. I will add a script to automate the process.
 ```console
 ❱❱❱ python data/aishell.py
 ```
+
 #### Librispeech (English)
 To automatically download the data
 ```console
