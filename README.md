@@ -15,6 +15,12 @@
 - Install torchaudio (https://github.com/pytorch/audio)
 - run ``❱❱❱ bash requirement.sh``
 
+### Related Work
+If you use any source codes included in this toolkit in your work, please cite the following paper.
+- Winata, G. I., Madotto, A., Wu, C. S., & Fung, P. (2019). Code-Switched Language Models Using Neural Based Synthetic Data from Parallel Sentences. In Proceedings of the 23rd Conference on Computational Natural Language Learning (CoNLL) (pp. 271-280).
+- Winata, G. I., Cahyawijaya, S., Lin, Z., Liu, Z., & Fung, P. (2019). Lightweight and Efficient End-to-End Speech Recognition Using Low-Rank Transformer. arXiv preprint arXiv:1910.13923.
+- Zhou, S., Dong, L., Xu, S., & Xu, B. (2018). Syllable-based sequence-to-sequence speech recognition with the transformer in mandarin chinese. arXiv preprint arXiv:1804.10752.
+
 ### Results
 AiShell-1
 
