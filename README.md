@@ -15,12 +15,27 @@
 - Install torchaudio (https://github.com/pytorch/audio)
 - run ``❱❱❱ bash requirement.sh``
 
+### Related Work
+If you use any source codes included in this toolkit in your work, please cite the following paper.
+- Winata, G. I., Madotto, A., Wu, C. S., & Fung, P. (2019). Code-Switched Language Models Using Neural Based Synthetic Data from Parallel Sentences. In Proceedings of the 23rd Conference on Computational Natural Language Learning (CoNLL) (pp. 271-280).
+- Winata, G. I., Cahyawijaya, S., Lin, Z., Liu, Z., & Fung, P. (2019). Lightweight and Efficient End-to-End Speech Recognition Using Low-Rank Transformer. arXiv preprint arXiv:1910.13923.
+- Zhou, S., Dong, L., Xu, S., & Xu, B. (2018). Syllable-Based Sequence-to-Sequence Speech Recognition with the Transformer in Mandarin Chinese. Proc. Interspeech 2018, 791-795.
+
+### Results
+AiShell-1
+
+| Decoding strategy | CER |
+| ------------- | ------------- |
+| Greedy | 14.5% |
+| Beam-search (beam width=8) | 13.5% |
+
 ### Data
 #### AiShell-1 (Chinese)
-To automatically download the data
+To preprocess the data. You need to download the data from https://www.openslr.org/33/. I will add a script to automate the process.
 ```console
 ❱❱❱ python data/aishell.py
 ```
+
 #### Librispeech (English)
 To automatically download the data
 ```console
