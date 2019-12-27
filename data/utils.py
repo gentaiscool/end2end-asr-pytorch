@@ -10,13 +10,12 @@ import subprocess
 SPECIAL_SPACE_CHARACTERS = ['\n', '\t', '\r']
 
 def generate_label_from_corpora(corpus_paths, output_path=None, lower_case=True):
-    """Generating label file from a given corpus folder file path(s)
+    """Generating label data from a given corpus folder file path(s)
 
-    This function will generate json label file by performing 
-    character level tokenization over all path in the specified `corpus_paths`
-    and store the result as a json formatted file in the specified `output_path`.
-    If path is a folder, the label file will be generated based on all files 
-    with `.txt` format inside the given path recursively.
+    This function will generate label data by performing character level tokenization 
+    over all path in the specified `corpus_paths` and store the result as a json formatted 
+    file in the specified `output_path`. If path is a folder, the label file will be generated 
+    based on all files with `.txt` format inside the given path recursively.
 
     Args:
         corpus_paths (list[str]): list of file or folder path of the text corpus
