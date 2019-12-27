@@ -9,7 +9,7 @@ import subprocess
 
 SPECIAL_SPACE_CHARACTERS = ['\n', '\t', '\r']
 
-def generate_label_file_from_corpus(corpus_paths, output_path=None, lower_case=True):
+def generate_label_from_corpora(corpus_paths, output_path=None, lower_case=True):
     """Generating label file from a given corpus folder file path(s)
 
     This function will generate json label file by performing 
@@ -113,19 +113,19 @@ def order_and_prune_files(file_paths, min_duration, max_duration):
 if __name__ == '__main__':
     # Test for generating label file
     print('Test Gen Label File')
-    print(generate_label_file_from_corpus(['./test.txt'], output_path=None, lower_case=True))
+    print(generate_label_from_corpora(['./test.txt'], output_path=None, lower_case=True))
 
     print('Test Gen Label File No Lower Case')
-    print(generate_label_file_from_corpus(['./test.txt'], output_path=None, lower_case=False))
+    print(generate_label_from_corpora(['./test.txt'], output_path=None, lower_case=False))
 
     print('Test Gen Label File to Json file')
-    print(generate_label_file_from_corpus(['./test.txt'], output_path='./label_file.json', lower_case=True))
+    print(generate_label_from_corpora(['./test.txt'], output_path='./label_file.json', lower_case=True))
 
     print('Test Gen Label Folder')
-    print(generate_label_file_from_corpus(['./test.txt', './test_folder'], output_path=None, lower_case=True))
+    print(generate_label_from_corpora(['./test.txt', './test_folder'], output_path=None, lower_case=True))
 
     print('Test Gen Label Folder No Lower Case')
-    print(generate_label_file_from_corpus(['./test.txt', './test_folder'], output_path=None, lower_case=False))
+    print(generate_label_from_corpora(['./test.txt', './test_folder'], output_path=None, lower_case=False))
 
     print('Test Gen Label Folder to Json file')
-    print(generate_label_file_from_corpus(['./test.txt', './test_folder'], output_path='./label_folder.json', lower_case=True))
+    print(generate_label_from_corpora(['./test.txt', './test_folder'], output_path='./label_folder.json', lower_case=True))
