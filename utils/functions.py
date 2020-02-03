@@ -6,7 +6,6 @@ import torch.nn as nn
 from models.asr.transformer import Transformer, Encoder, Decoder
 from utils.optimizer import NoamOpt, AnnealingOpt
 from utils import constant
-from utils.parallel import DataParallel
 
 
 def save_model(model, epoch, opt, metrics, label2id, id2label, best_model=False):
@@ -156,8 +155,8 @@ def init_transformer_model(args, label2id, id2label):
         device_ids = args.device_ids
         if constant.args.device_ids:
             print("load with device_ids", constant.args.device_ids)
-            model = DataParallel(model, device_ids=constant.args.device_ids)
+            model = nn.DataParallel(model, device_ids=constant.args.device_ids)
         else:
-            model = DataParallel(model)
+            model = nn.DataParallel(model)
 
     return model
