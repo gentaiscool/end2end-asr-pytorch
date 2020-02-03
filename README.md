@@ -1,25 +1,23 @@
 ## End-to-End Speech Recognition on Pytorch
 
+### Transformer-based Speech Recognition Model
+
 <img src="img/pytorch-logo-dark.png" width="10%"> [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
+If you use any source codes included in this toolkit in your work, please cite the following paper.
+- Winata, G. I., Madotto, A., Wu, C. S., & Fung, P. (2019). Code-Switched Language Models Using Neural Based Synthetic Data from Parallel Sentences. In Proceedings of the 23rd Conference on Computational Natural Language Learning (CoNLL) (pp. 271-280).
+- Winata, G. I., Cahyawijaya, S., Lin, Z., Liu, Z., & Fung, P. (2019). Lightweight and Efficient End-to-End Speech Recognition Using Low-Rank Transformer. arXiv preprint arXiv:1910.13923. (Accepted by ICASSP 2020)
+- Zhou, S., Dong, L., Xu, S., & Xu, B. (2018). Syllable-Based Sequence-to-Sequence Speech Recognition with the Transformer in Mandarin Chinese. Proc. Interspeech 2018, 791-795.
+
 ### Highlights
-- implemented Transformer model based on <a href="https://arxiv.org/abs/1804.10752">Syllable-Based Sequence-to-Sequence Speech Recognition with the Transformer in Mandarin Chinese<a/>
-- the code uses Spectrogram features and VGG (6-layer 2D CNN) feature extractor
-- supports training on any languages
 - supports batch parallelization on multi-GPU
 - supports multiple dataset training and evaluation
 
 ### Requirements
 - Python 3.5 or later
-- Install Pytorch 1.0 (https://pytorch.org/)
+- Install Pytorch 1.4 (https://pytorch.org/)
 - Install torchaudio (https://github.com/pytorch/audio)
 - run ``❱❱❱ bash requirement.sh``
-
-### Related Work
-If you use any source codes included in this toolkit in your work, please cite the following paper.
-- Winata, G. I., Madotto, A., Wu, C. S., & Fung, P. (2019). Code-Switched Language Models Using Neural Based Synthetic Data from Parallel Sentences. In Proceedings of the 23rd Conference on Computational Natural Language Learning (CoNLL) (pp. 271-280).
-- Winata, G. I., Cahyawijaya, S., Lin, Z., Liu, Z., & Fung, P. (2019). Lightweight and Efficient End-to-End Speech Recognition Using Low-Rank Transformer. arXiv preprint arXiv:1910.13923.
-- Zhou, S., Dong, L., Xu, S., & Xu, B. (2018). Syllable-Based Sequence-to-Sequence Speech Recognition with the Transformer in Mandarin Chinese. Proc. Interspeech 2018, 791-795.
 
 ### Results
 AiShell-1
