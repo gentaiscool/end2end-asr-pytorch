@@ -35,7 +35,7 @@ LIBRI_SPEECH_URLS = {
 
 
 def _preprocess_transcript(phrase):
-    return phrase.strip().upper()
+    return phrase.strip().lower()
 
 
 def _process_file(wav_dir, txt_dir, base_filename, root_dir):
