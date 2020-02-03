@@ -68,8 +68,7 @@ if __name__ == '__main__':
     for i in range(len(args.valid_manifest_list)):
         valid_data = SpectrogramDataset(audio_conf, manifest_filepath_list=[args.valid_manifest_list[i]], label2id=label2id,
                                         normalize=True, augment=False)
-        valid_sampler = BucketingSampler(valid_data, batch_size=args.batch_size)
-        valid_loader = AudioDataLoader(valid_data, num_workers=args.num_workers)
+        valid_loader = AudioDataLoader(valid_data, num_workers=args.num_workers, batch_size=args.batch_size)
         valid_loader_list.append(valid_loader)
 
     for i in range(len(args.test_manifest_list)):
@@ -81,11 +80,12 @@ if __name__ == '__main__':
     start_epoch = 0
     metrics = None
     loaded_args = None
+    print(constant.args.continue_from)
     if constant.args.continue_from != "":
-        logging.info("Continue from checkpoint:", constant.args.continue_from)
+        logging.info("Continue from checkpoint: " + constant.args.continue_from)
         model, opt, epoch, metrics, loaded_args, label2id, id2label = load_model(
             constant.args.continue_from)
-        start_epoch = (epoch-1)  # index starts from zero
+        start_epoch = epoch  # index starts from zero
         verbose = constant.args.verbose
 
         if loaded_args != None:

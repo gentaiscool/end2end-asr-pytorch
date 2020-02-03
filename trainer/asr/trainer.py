@@ -55,8 +55,7 @@ class Trainer():
 
                 opt.zero_grad()
 
-                pred, gold, hyp_seq, gold_seq = model(
-                    src, src_lengths, tgt, verbose=False)
+                pred, gold, hyp_seq, gold_seq = model(src, src_lengths, tgt, verbose=False)
 
                 try: # handle case for CTC
                     strs_gold, strs_hyps = [], []
@@ -74,9 +73,6 @@ class Trainer():
                                 break
                             str_hyp = str_hyp + id2label[int(x)]
                         strs_hyps.append(str_hyp)
-
-                    # strs_gold = ["".join([id2label[int(x)] for x in ut_gold]) for ut_gold in gold_seq]
-                    # strs_hyps = ["".join([id2label[int(x)] for x in ut_hyp]) for ut_hyp in hyp_seq]
                 except Exception as e:
                     print(e)
                     logging.info("NaN predictions")
@@ -140,11 +136,7 @@ class Trainer():
                         src = src.cuda()
                         tgt = tgt.cuda()
 
-                    pred, gold, hyp_seq, gold_seq = model(
-                        src, src_lengths, tgt, verbose=False)
-
-                    strs_gold = ["".join([id2label[int(x)] for x in ut_gold]) for ut_gold in gold_seq]
-                    strs_hyps = ["".join([id2label[int(x)] for x in ut_hyp]) for ut_hyp in hyp_seq]
+                    pred, gold, hyp_seq, gold_seq = model(src, src_lengths, tgt, verbose=False)
 
                     seq_length = pred.size(1)
                     sizes = Variable(src_percentages.mul_(int(seq_length)).int(), requires_grad=False)
@@ -158,9 +150,23 @@ class Trainer():
                         continue
 
                     try: # handle case for CTC
-                        strs_gold = ["".join([id2label[int(x)] for x in gold]) for gold in gold_seq]
-                        strs_hyps = ["".join([id2label[int(x)] for x in hyp]) for hyp in hyp_seq]
-                    except:
+                        strs_gold, strs_hyps = [], []
+                        for ut_gold in gold_seq:
+                            str_gold = ""
+                            for x in ut_gold:
+                                if int(x) == constant.PAD_TOKEN:
+                                    break
+                                str_gold = str_gold + id2label[int(x)]
+                            strs_gold.append(str_gold)
+                        for ut_hyp in hyp_seq:
+                            str_hyp = ""
+                            for x in ut_hyp:
+                                if int(x) == constant.PAD_TOKEN:
+                                    break
+                                str_hyp = str_hyp + id2label[int(x)]
+                            strs_hyps.append(str_hyp)
+                    except Exception as e:
+                        print(e)
                         logging.info("NaN predictions")
                         continue
 
