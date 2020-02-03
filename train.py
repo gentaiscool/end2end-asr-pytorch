@@ -87,6 +87,16 @@ if __name__ == '__main__':
             constant.args.continue_from)
         start_epoch = (epoch-1)  # index starts from zero
         verbose = constant.args.verbose
+
+        if loaded_args != None:
+            # Unwrap nn.DataParallel
+            if loaded_args.parallel:
+                logging.info("unwrap from DataParallel")
+                model = model.module
+
+            # Parallelize the batch
+            if args.parallel:
+                model = nn.DataParallel(model, device_ids=args.device_ids)
     else:
         if constant.args.model == "TRFS":
             model = init_transformer_model(constant.args, label2id, id2label)
@@ -97,17 +107,7 @@ if __name__ == '__main__':
     loss_type = args.loss
 
     if constant.USE_CUDA:
-        model = model.cuda()
-
-    # Parallelize the batch
-    if args.parallel:
-        device_ids = args.device_ids
-        model = nn.DataParallel(model, device_ids=device_ids)
-    else:
-        if loaded_args != None:
-            if loaded_args.parallel:
-                logging.info("unwrap from DataParallel")
-                model = model.module
+        model = model.cuda(0)
 
     logging.info(model)
     num_epochs = constant.args.epochs

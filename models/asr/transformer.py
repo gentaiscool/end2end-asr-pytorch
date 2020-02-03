@@ -82,11 +82,6 @@ class Transformer(nn.Module):
         hyp_seq = hyp_best_ids.squeeze(2)
         gold_seq = gold
 
-        pred = pred.to(0)
-        gold = gold.to(0)
-        hyp_seq = hyp_seq.to(0)
-        gold_seq = gold_seq.to(0)
-        print(pred, gold, hyp_seq, gold_seq)
         return pred, gold, hyp_seq, gold_seq
 
     def evaluate(self, padded_input, input_lengths, padded_target, beam_search=False, beam_width=0, beam_nbest=0, lm=None, lm_rescoring=False, lm_weight=0.1, c_weight=1, verbose=False):
