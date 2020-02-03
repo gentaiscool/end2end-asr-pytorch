@@ -6,7 +6,6 @@ import torch.nn as nn
 from models.lm.transformer_lm import TransformerLM
 from utils.optimizer import NoamOpt
 from utils import constant
-from utils.parallel import DataParallel
 
 
 # def save_model(model, epoch, opt, metrics, label2id, id2label, best_model=False):

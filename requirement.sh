@@ -1,1 +1,1 @@
-pip install tqdm python-Levenshtein librosa
+pip install tqdm python-Levenshtein librosa wget

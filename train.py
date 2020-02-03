@@ -12,7 +12,6 @@ from trainer.asr.trainer import Trainer
 from utils import constant
 from utils.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
 from utils.functions import save_model, load_model, init_transformer_model, init_optimizer
-from utils.parallel import DataParallel
 import logging
 
 import sys
@@ -69,8 +68,7 @@ if __name__ == '__main__':
     for i in range(len(args.valid_manifest_list)):
         valid_data = SpectrogramDataset(audio_conf, manifest_filepath_list=[args.valid_manifest_list[i]], label2id=label2id,
                                         normalize=True, augment=False)
-        valid_sampler = BucketingSampler(valid_data, batch_size=args.batch_size)
-        valid_loader = AudioDataLoader(valid_data, num_workers=args.num_workers)
+        valid_loader = AudioDataLoader(valid_data, num_workers=args.num_workers, batch_size=args.batch_size)
         valid_loader_list.append(valid_loader)
 
     for i in range(len(args.test_manifest_list)):
@@ -82,12 +80,23 @@ if __name__ == '__main__':
     start_epoch = 0
     metrics = None
     loaded_args = None
+    print(constant.args.continue_from)
     if constant.args.continue_from != "":
-        logging.info("Continue from checkpoint:", constant.args.continue_from)
+        logging.info("Continue from checkpoint: " + constant.args.continue_from)
         model, opt, epoch, metrics, loaded_args, label2id, id2label = load_model(
             constant.args.continue_from)
-        start_epoch = (epoch-1)  # index starts from zero
+        start_epoch = epoch  # index starts from zero
         verbose = constant.args.verbose
+
+        if loaded_args != None:
+            # Unwrap nn.DataParallel
+            if loaded_args.parallel:
+                logging.info("unwrap from DataParallel")
+                model = model.module
+
+            # Parallelize the batch
+            if args.parallel:
+                model = nn.DataParallel(model, device_ids=args.device_ids)
     else:
         if constant.args.model == "TRFS":
             model = init_transformer_model(constant.args, label2id, id2label)
@@ -98,17 +107,7 @@ if __name__ == '__main__':
     loss_type = args.loss
 
     if constant.USE_CUDA:
-        model = model.cuda()
-
-    # Parallelize the batch
-    if args.parallel:
-        device_ids = args.device_ids
-        model = DataParallel(model, device_ids=device_ids)
-    else:
-        if loaded_args != None:
-            if loaded_args.parallel:
-                logging.info("unwrap from DataParallel")
-                model = model.module
+        model = model.cuda(0)
 
     logging.info(model)
     num_epochs = constant.args.epochs
