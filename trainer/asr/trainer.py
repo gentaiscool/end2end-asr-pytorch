@@ -136,7 +136,8 @@ class Trainer():
                         src = src.cuda()
                         tgt = tgt.cuda()
 
-                    pred, gold, hyp_seq, gold_seq = model(src, src_lengths, tgt, verbose=False)
+                    with torch.no_grad():
+                        pred, gold, hyp_seq, gold_seq = model(src, src_lengths, tgt, verbose=False)
 
                     seq_length = pred.size(1)
                     sizes = Variable(src_percentages.mul_(int(seq_length)).int(), requires_grad=False)
